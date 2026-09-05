@@ -1,0 +1,30 @@
+<h1>Rastro</h1>
+<h2>Alumnos</h2>
+
+{% if messages %}{% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}{% endif %}
+
+<form method="get">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o DNI...">
+    <button type="submit">Buscar</button>
+</form>
+
+<p><a href="{% url 'alumno_nuevo' %}">+ Nuevo alumno</a></p>
+
+<table boder="1" cellpadding="6">
+<tr><th>Nombre</th><th>DNI</th><th>Grado</th><th>División</th><th>Turno</th><th>Estado</th><th></th></tr>
+{% for a in alumnos %}
+<tr>
+    <td><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a></td>
+    <td>{{ a.dni }}</td>
+    <td>{{ a.grado.nombre_grado }}</td>
+    <td>{{ a.division.nombre_division }}</td>
+    <td>{{ a.turno.nombre_turno }}</td>
+    <td>{{ a.estado }}</td>
+    <td><a href="{% url 'alumno_editar' a.id_alumno %}">Editar</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="7">No se encontraron alumnos.</td></tr>
+{% endfor %}
+</table>
+
+<p><a href="{% url 'directivo_informes' %}">Ver informes</a> | <a href="{% url 'logout' %}">Cerrar sesión</a></p>

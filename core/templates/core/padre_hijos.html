@@ -1,0 +1,17 @@
+<h1>Rastro</h1>
+<h2>Mis hijos</h2>
+<p>Bienvenido/a, {{ usuario.nombre }} {{ usuario.apellido }}</p>
+
+<ul>
+{% for a in hijos %}
+    <li>
+        <strong><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a></strong>
+        — {{ a.grado.nombre_grado }}, División {{ a.division.nombre_division }}, Turno {{ a.turno.nombre_turno }}
+        — Estado: {{ a.estado }}
+    </li>
+{% empty %}
+    <li>No tenés alumnos asociados.</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'logout' %}">Cerrar sesión</a>

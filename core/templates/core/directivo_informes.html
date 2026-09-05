@@ -1,0 +1,31 @@
+<h1>Rastro</h1>
+<h2>Informes</h2>
+
+{% if messages %}{% for message in messages %}<p style="color: green;">{{ message }}</p>{% endfor %}{% endif %}
+
+<table border="1" cellpadding="6">
+<tr><th>Alumno</th><th>Padre/Tutor</th><th>Mensaje</th><th>Fecha</th><th>Estado</th><th></th></tr>
+{% for i in informes %}
+<tr>
+    <td>{{ i.alumno.nombre }} {{ i.alumno.apellido }}</td>
+    <td>{{ i.padre.usuario.nombre }} {{ i.padre.usuario.apellido }}</td>
+    <td>{{ i.mensaje }}</td>
+    <td>{{ i.fecha }}</td>
+    <td>
+        <form method="post" action="{% url 'informe_cambiar_estado' i.id_informe %}">
+            {% csrf_token %}
+            <select name="estado" onchange="this.form.submit()">
+                <option value="ENVIADO" {% if i.estado == "ENVIADO" %}selected{% endif %}>ENVIADO</option>
+                <option value="REVISADO" {% if i.estado == "REVISADO" %}selected{% endif %}>REVISADO</option>
+                <option value="RESUELTO" {% if i.estado == "RESUELTO" %}selected{% endif %}>RESUELTO</option>
+            </select>
+        </form>
+    </td>
+    <td><a href="{% url 'alumno_detail' i.alumno.id_alumno %}">Ver ficha</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="6">No hay informes.</td></tr>
+{% endfor %}
+</table>
+
+<p><a href="{% url 'directivo_alumnos' %}">&larr; Volver a alumnos</a> | <a href="{% url 'logout' %}">Cerrar sesión</a></p>

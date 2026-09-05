@@ -1,0 +1,25 @@
+<h1>Rastro</h1>
+<h2>{{ alumno.nombre }} {{ alumno.apellido }}</h2>
+
+{% if messages %}{% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}{% endif %}
+
+<p>DNI: {{ alumno.dni }}</p>
+<p>Grado: {{ alumno.grado.nombre_grado }} — División: {{ alumno.division.nombre_division }} — Turno: {{ alumno.turno.nombre_turno }}</p>
+<p>Estado: {{ alumno.estado }}</p>
+
+{% if puede_informar %}
+<h3>Informar una situación al directivo</h3>
+<form method="post">
+    {% csrf_token %}
+    <textarea name="mensaje" rows="4" cols="40" placeholder="Contale al directivo qué está pasando..."></textarea><br><br>
+    <button type="submit">Enviar informe</button>
+</form>
+{% endif %}
+
+<p>
+{% if usuario.rol == "PADRE" %}<a href="{% url 'padre_hijos' %}">&larr; Volver</a>
+{% elif usuario.rol == "DIRECTIVO" %}<a href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
+{% elif usuario.rol == "DOCENTE" %}<a href="{% url 'docente_alumnos' %}">&larr; Volver</a>
+{% else %}<a href="{% url 'supervisor_alumnos' %}">&larr; Volver</a>
+{% endif %}
+</p>

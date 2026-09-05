@@ -1,0 +1,23 @@
+<h1>Rastro</h1>
+<h2>Mis alumnos</h2>
+<p>{{ docente.especialidad|default:"" }}</p>
+
+<h4>Mis asignaciones</h4>
+<ul>
+{% for a in asignaciones %}
+    <li>{{ a.grado.nombre_grado }} — División {{ a.division.nombre_division }} — Turno {{ a.turno.nombre_turno }}</li>
+{% empty %}
+    <li>Sin asignaciones.</li>
+{% endfor %}
+</ul>
+
+<h4>Alumnos</h4>
+<ul>
+{% for a in alumnos %}
+    <li><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a> — {{ a.grado.nombre_grado }} {{ a.division.nombre_division }}</li>
+{% empty %}
+    <li>No hay alumnos en tus asignaciones.</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'logout' %}">Cerrar sesión</a>
