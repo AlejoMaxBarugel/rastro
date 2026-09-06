@@ -1,8 +1,14 @@
-<h1>Rastro</h1>
-<h2>¿Eliminar a {{ alumno.nombre }} {{ alumno.apellido }}?</h2>
-<p>Esta acción no se puede deshacer.</p>
-<form method="post">
+{% extends "core/base.html" %}
+{% block title %}Eliminar alumno{% endblock %}
+{% block page_title %}Eliminar alumno{% endblock %}
+{% block page_sub %}Esta acción no se puede deshacer{% endblock %}
+{% block content %}
+<div class="center-box">
+  <h3 style="margin-top:0;">¿Eliminar a {{ alumno.nombre }} {{ alumno.apellido }}?</h3>
+  <form method="post" style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
     {% csrf_token %}
-    <button type="submit">Sí, eliminar</button>
-</form>
-<p><a href="{% url 'alumno_editar' alumno.id_alumno %}">Cancelar</a></p>
+    <a class="btn btn-secondary" href="{% url 'alumno_editar' alumno.id_alumno %}">Cancelar</a>
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+  </form>
+</div>
+{% endblock %}

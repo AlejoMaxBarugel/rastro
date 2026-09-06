@@ -1,23 +1,31 @@
-<h1>Rastro</h1>
-<h2>Mis alumnos</h2>
-<p>{{ docente.especialidad|default:"" }}</p>
+{% extends "core/base.html" %}
+{% block title %}Mis alumnos{% endblock %}
+{% block page_title %}Mis alumnos{% endblock %}
+{% block page_sub %}Según tu grado, división y turno asignado{% endblock %}
+{% block content %}
+<div class="block" style="margin-bottom:20px;">
+  <h4>Mis asignaciones {% if docente.especialidad %}· {{ docente.especialidad }}{% endif %}</h4>
+  {% for a in asignaciones %}
+  <div class="list-item">
+    <span class="li-title">{{ a.grado.nombre_grado }} · División {{ a.division.nombre_division }}</span>
+    <div class="li-sub">Turno {{ a.turno.nombre_turno }}</div>
+  </div>
+  {% empty %}
+  <p class="empty">Sin asignaciones.</p>
+  {% endfor %}
+</div>
 
-<h4>Mis asignaciones</h4>
-<ul>
-{% for a in asignaciones %}
-    <li>{{ a.grado.nombre_grado }} — División {{ a.division.nombre_division }} — Turno {{ a.turno.nombre_turno }}</li>
-{% empty %}
-    <li>Sin asignaciones.</li>
-{% endfor %}
-</ul>
-
-<h4>Alumnos</h4>
-<ul>
+<div class="card-grid">
 {% for a in alumnos %}
-    <li><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a> — {{ a.grado.nombre_grado }} {{ a.division.nombre_division }}</li>
+  <a class="index-card" href="{% url 'alumno_detail' a.id_alumno %}">
+    <div class="clip"></div>
+    <div class="avatar">{{ a.nombre|slice:":1" }}{{ a.apellido|slice:":1" }}</div>
+    <div class="aname">{{ a.nombre }} {{ a.apellido }}</div>
+    <div class="ameta">{{ a.grado.nombre_grado }} · Div. {{ a.division.nombre_division }} · Turno {{ a.turno.nombre_turno }}</div>
+    <span class="pill estado-{{ a.estado }}">{{ a.estado }}</span>
+  </a>
 {% empty %}
-    <li>No hay alumnos en tus asignaciones.</li>
+  <p class="empty">No hay alumnos en tus asignaciones.</p>
 {% endfor %}
-</ul>
-
-<a href="{% url 'logout' %}">Cerrar sesión</a>
+</div>
+{% endblock %}

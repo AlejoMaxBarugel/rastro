@@ -1,25 +1,34 @@
-<h1>Rastro</h1>
-<h2>{{ alumno.nombre }} {{ alumno.apellido }}</h2>
-
-{% if messages %}{% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}{% endif %}
-
-<p>DNI: {{ alumno.dni }}</p>
-<p>Grado: {{ alumno.grado.nombre_grado }} — División: {{ alumno.division.nombre_division }} — Turno: {{ alumno.turno.nombre_turno }}</p>
-<p>Estado: {{ alumno.estado }}</p>
-
-{% if puede_informar %}
-<h3>Informar una situación al directivo</h3>
-<form method="post">
-    {% csrf_token %}
-    <textarea name="mensaje" rows="4" cols="40" placeholder="Contale al directivo qué está pasando..."></textarea><br><br>
-    <button type="submit">Enviar informe</button>
-</form>
+{% extends "core/base.html" %}
+{% block title %}{{ alumno.nombre }} {{ alumno.apellido }}{% endblock %}
+{% block page_title %}Ficha del alumno{% endblock %}
+{% block page_sub %}{{ alumno.nombre }} {{ alumno.apellido }}{% endblock %}
+{% block content %}
+{% if usuario.rol == "PADRE" %}<a class="back-link" href="{% url 'padre_hijos' %}">&larr; Volver</a>
+{% elif usuario.rol == "DIRECTIVO" %}<a class="back-link" href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
+{% elif usuario.rol == "DOCENTE" %}<a class="back-link" href="{% url 'docente_alumnos' %}">&larr; Volver</a>
+{% else %}<a class="back-link" href="{% url 'supervisor_alumnos' %}">&larr; Volver</a>
 {% endif %}
 
-<p>
-{% if usuario.rol == "PADRE" %}<a href="{% url 'padre_hijos' %}">&larr; Volver</a>
-{% elif usuario.rol == "DIRECTIVO" %}<a href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
-{% elif usuario.rol == "DOCENTE" %}<a href="{% url 'docente_alumnos' %}">&larr; Volver</a>
-{% else %}<a href="{% url 'supervisor_alumnos' %}">&larr; Volver</a>
-{% endif %}
-</p>
+<div class="detail-panel">
+  <div class="detail-head">
+    <div class="avatar-lg">{{ alumno.nombre|slice:":1" }}{{ alumno.apellido|slice:":1" }}</div>
+    <div>
+      <h3>{{ alumno.nombre }} {{ alumno.apellido }} <span class="pill estado-{{ alumno.estado }}">{{ alumno.estado }}</span></h3>
+      <div class="meta mono">DNI {{ alumno.dni }} · {{ alumno.grado.nombre_grado }} · Div. {{ alumno.division.nombre_division }} · Turno {{ alumno.turno.nombre_turno }}</div>
+    </div>
+  </div>
+
+  {% if puede_informar %}
+  <div class="block">
+    <h4>Informar una situación al directivo</h4>
+    <form method="post">
+      {% csrf_token %}
+      <textarea name="mensaje" placeholder="Contale al directivo qué está pasando con {{ alumno.nombre }}…"></textarea>
+      <div style="margin-top:10px; text-align:right;">
+        <button type="submit" class="btn btn-primary">Enviar informe</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

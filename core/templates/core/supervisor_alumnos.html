@@ -1,25 +1,26 @@
-<h1>Rastro</h1>
-<h2>Todos los alumnos</h2>
-
-<form method="get">
-    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o DNI...">
-    <button type="submit">Buscar</button>
-</form>
-
-<table border="1" cellpadding="6">
-<tr><th>Nombre</th><th>DNI</th><th>Grado</th><th>División</th><th>Turno</th><th>Estado</th></tr>
+{% extends "core/base.html" %}
+{% block title %}Todos los alumnos{% endblock %}
+{% block page_title %}Todos los alumnos{% endblock %}
+{% block page_sub %}Consulta general — sin privilegios de edición{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <form method="get">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o DNI…" onchange="this.form.submit()">
+  </form>
+</div>
+<table>
+<tr><th>Alumno</th><th>DNI</th><th>Grado</th><th>División</th><th>Turno</th><th>Estado</th></tr>
 {% for a in alumnos %}
 <tr>
-    <td><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a></td>
-    <td>{{ a.dni }}</td>
-    <td>{{ a.grado.nombre_grado }}</td>
-    <td>{{ a.division.nombre_division }}</td>
-    <td>{{ a.turno.nombre_turno }}</td>
-    <td>{{ a.estado }}</td>
+  <td><a href="{% url 'alumno_detail' a.id_alumno %}" style="color:var(--blue);font-weight:600;text-decoration:none;">{{ a.nombre }} {{ a.apellido }}</a></td>
+  <td class="mono">{{ a.dni }}</td>
+  <td>{{ a.grado.nombre_grado }}</td>
+  <td>{{ a.division.nombre_division }}</td>
+  <td>{{ a.turno.nombre_turno }}</td>
+  <td><span class="pill estado-{{ a.estado }}">{{ a.estado }}</span></td>
 </tr>
 {% empty %}
 <tr><td colspan="6">No se encontraron alumnos.</td></tr>
 {% endfor %}
 </table>
-
-<a href="{% url 'logout' %}">Cerrar sesión</a>
+{% endblock %}

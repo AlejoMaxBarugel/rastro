@@ -1,52 +1,59 @@
-<h1>Rastro</h1>
-<h2>{% if alumno %}Editar alumno{% else %}Nuevo alumno{% endif %}</h2>
-
-{% if messages %}{% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}{% endif %}
-
-<form method="post">
+{% extends "core/base.html" %}
+{% block title %}{% if alumno %}Editar alumno{% else %}Nuevo alumno{% endif %}{% endblock %}
+{% block page_title %}{% if alumno %}Editar alumno{% else %}Nuevo alumno{% endif %}{% endblock %}
+{% block page_sub %}Tabla ALUMNO — datos básicos{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
+<div class="detail-panel" style="max-width:480px;">
+  <form method="post">
     {% csrf_token %}
     <input type="hidden" name="solo_refrescar" id="solo-refrescar" value="">
 
-    <label>Nombre</label><br>
-    <input type="text" name="nombre" value="{{ alumno.nombre|default:'' }}"><br><br>
+    <div class="field"><label>Nombre</label><input name="nombre" value="{{ alumno.nombre|default:'' }}"></div>
+    <div class="field"><label>Apellido</label><input name="apellido" value="{{ alumno.apellido|default:'' }}"></div>
+    <div class="field"><label>DNI</label><input name="dni" value="{{ alumno.dni|default:'' }}"></div>
 
-    <label>Apellido</label><br>
-    <input type="text" name="apellido" value="{{ alumno.apellido|default:'' }}"><br><br>
-
-    <label>DNI</label><br>
-    <input type="text" name="dni" value="{{ alumno.dni|default:'' }}"><br><br>
-
-    <label>Grado</label><br>
-    <select name="id_grado" onchange="document.getElementById('solo-refrescar').value='1'; this.form.submit()">
+    <div class="field">
+      <label>Grado</label>
+      <select name="id_grado" onchange="document.getElementById('solo-refrescar').value='1'; this.form.submit()">
         {% for g in grados %}
         <option value="{{ g.id_grado }}" {% if grado_sel == g.id_grado or alumno.grado_id == g.id_grado %}selected{% endif %}>{{ g.nombre_grado }}</option>
         {% endfor %}
-    </select><br><br>
+      </select>
+    </div>
 
-    <label>División</label><br>
-    <select name="id_division">
+    <div class="field">
+      <label>División</label>
+      <select name="id_division">
         {% for d in divisiones %}
         <option value="{{ d.id_division }}" {% if alumno.division_id == d.id_division %}selected{% endif %}>{{ d.nombre_division }}</option>
         {% endfor %}
-    </select><br><br>
+      </select>
+    </div>
 
-    <label>Turno</label><br>
-    <select name="id_turno">
+    <div class="field">
+      <label>Turno</label>
+      <select name="id_turno">
         {% for t in turnos %}
         <option value="{{ t.id_turno }}" {% if alumno.turno_id == t.id_turno %}selected{% endif %}>{{ t.nombre_turno }}</option>
         {% endfor %}
-    </select><br><br>
+      </select>
+    </div>
 
-    <label>Estado</label><br>
-    <select name="estado">
+    <div class="field">
+      <label>Estado</label>
+      <select name="estado">
         <option value="ACTIVO" {% if alumno.estado == "ACTIVO" %}selected{% endif %}>ACTIVO</option>
         <option value="INACTIVO" {% if alumno.estado == "INACTIVO" %}selected{% endif %}>INACTIVO</option>
         <option value="EGRESADO" {% if alumno.estado == "EGRESADO" %}selected{% endif %}>EGRESADO</option>
         <option value="BAJA" {% if alumno.estado == "BAJA" %}selected{% endif %}>BAJA</option>
-    </select><br><br>
+      </select>
+    </div>
 
-    <button type="submit">Guardar</button>
-    {% if alumno %}<a href="{% url 'alumno_eliminar' alumno.id_alumno %}">Eliminar</a>{% endif %}
-</form>
-
-<p><a href="{% url 'directivo_alumnos' %}">&larr; Volver</a></p>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      {% if alumno %}<a class="btn btn-danger" href="{% url 'alumno_eliminar' alumno.id_alumno %}">Eliminar</a>{% endif %}
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

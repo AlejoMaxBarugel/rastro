@@ -1,17 +1,22 @@
-<h1>Rastro</h1>
-<h2>Mis hijos</h2>
-<p>Bienvenido/a, {{ usuario.nombre }} {{ usuario.apellido }}</p>
-
-<ul>
+{% extends "core/base.html" %}
+{% block title %}Mis hijos{% endblock %}
+{% block page_title %}Mis hijos{% endblock %}
+{% block page_sub %}Alumnos asociados a tu cuenta{% endblock %}
+{% block content %}
+<div class="card-grid">
 {% for a in hijos %}
-    <li>
-        <strong><a href="{% url 'alumno_detail' a.id_alumno %}">{{ a.nombre }} {{ a.apellido }}</a></strong>
-        — {{ a.grado.nombre_grado }}, División {{ a.division.nombre_division }}, Turno {{ a.turno.nombre_turno }}
-        — Estado: {{ a.estado }}
-    </li>
+  <a class="index-card" href="{% url 'alumno_detail' a.id_alumno %}">
+    <div class="clip"></div>
+    <div class="avatar">{{ a.nombre|slice:":1" }}{{ a.apellido|slice:":1" }}</div>
+    <div class="aname">{{ a.nombre }} {{ a.apellido }}</div>
+    <div class="ameta">{{ a.grado.nombre_grado }} · Div. {{ a.division.nombre_division }} · Turno {{ a.turno.nombre_turno }}</div>
+    <div class="pills">
+      <span class="pill estado-{{ a.estado }}">{{ a.estado }}</span>
+      <span class="pill mono">DNI {{ a.dni }}</span>
+    </div>
+  </a>
 {% empty %}
-    <li>No tenés alumnos asociados.</li>
+  <p class="empty">No tenés alumnos asociados.</p>
 {% endfor %}
-</ul>
-
-<a href="{% url 'logout' %}">Cerrar sesión</a>
+</div>
+{% endblock %}

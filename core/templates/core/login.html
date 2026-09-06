@@ -1,28 +1,50 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Rastro — Iniciar sesión</title>
+<meta charset="UTF-8">
+<title>Iniciar sesión — Rastro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'core/css/style.css' %}">
 </head>
 <body>
-    <h1>Rastro</h1>
-    <h2>Iniciar sesión</h2>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div>
+        <div class="logo">
+          <svg class="icon" viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--accent);"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+          <span>Rastro</span>
+        </div>
+        <p class="tagline">Cada alumno deja un rastro: su ficha, su historia médica, sus informes. Este sistema lo sigue de cerca.</p>
+      </div>
+      <div class="footprint-row">
+        <span style="font-size:11px;">Seguimiento escolar por rol · conectado a SQLite</span>
+      </div>
+    </div>
+    <div class="login-right">
+      <h2>Iniciar sesión</h2>
+      <p class="sub">Ingresá con tu usuario y contraseña.</p>
 
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: red;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+      {% if messages %}
+        {% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
+      {% endif %}
 
-    <form method="post">
+      <form method="post">
         {% csrf_token %}
-        <label>Usuario:</label><br>
-        <input type="text" name="nombre_usuario"><br><br>
-
-        <label>Contraseña:</label><br>
-        <input type="password" name="contrasena"><br><br>
-
-        <button type="submit">Ingresar</button>
-    </form>
+        <div class="field">
+          <label>Usuario</label>
+          <input type="text" name="nombre_usuario" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" name="contrasena">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+    </div>
+  </div>
+</div>
 </body>
 </html>
