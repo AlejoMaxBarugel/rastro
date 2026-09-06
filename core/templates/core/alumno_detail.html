@@ -2,30 +2,213 @@
 {% block title %}{{ alumno.nombre }} {{ alumno.apellido }}{% endblock %}
 {% block page_title %}Ficha del alumno{% endblock %}
 {% block page_sub %}{{ alumno.nombre }} {{ alumno.apellido }}{% endblock %}
+
 {% block content %}
-{% if usuario.rol == "PADRE" %}<a class="back-link" href="{% url 'padre_hijos' %}">&larr; Volver</a>
-{% elif usuario.rol == "DIRECTIVO" %}<a class="back-link" href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
-{% elif usuario.rol == "DOCENTE" %}<a class="back-link" href="{% url 'docente_alumnos' %}">&larr; Volver</a>
-{% else %}<a class="back-link" href="{% url 'supervisor_alumnos' %}">&larr; Volver</a>
+{% if usuario_actual.rol == "PADRE" %}
+  <a class="back-link" href="{% url 'padre_hijos' %}">&larr; Volver</a>
+{% elif usuario_actual.rol == "DIRECTIVO" %}
+  <a class="back-link" href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
+{% elif usuario_actual.rol == "DOCENTE" %}
+  <a class="back-link" href="{% url 'docente_alumnos' %}">&larr; Volver</a>
+{% else %}
+  <a class="back-link" href="{% url 'supervisor_alumnos' %}">&larr; Volver</a>
 {% endif %}
 
 <div class="detail-panel">
   <div class="detail-head">
-    <div class="avatar-lg">{{ alumno.nombre|slice:":1" }}{{ alumno.apellido|slice:":1" }}</div>
+    <div class="avatar-lg">{{ alumno.iniciales }}</div>
     <div>
-      <h3>{{ alumno.nombre }} {{ alumno.apellido }} <span class="pill estado-{{ alumno.estado }}">{{ alumno.estado }}</span></h3>
+      <h3>{{ alumno.nombre }} {{ alumno.apellido }} <span class="pill estado-{{ alumno.estado }}" style="vertical-align:middle;">{{ alumno.estado }}</span></h3>
       <div class="meta mono">DNI {{ alumno.dni }} · {{ alumno.grado.nombre_grado }} · Div. {{ alumno.division.nombre_division }} · Turno {{ alumno.turno.nombre_turno }}</div>
+    </div>
+    {% if puede_editar %}
+    <a class="btn btn-secondary" style="margin-left:auto;" href="{% url 'alumno_editar' alumno.id_alumno %}">Editar ficha</a>
+    {% endif %}
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <!-- INFORMACIÓN MÉDICA -->
+      <div class="block">
+        <div class="block-head">
+          <h4>Información médica</h4>
+          {% if puede_editar %}
+          <button class="mini-btn" type="button" onclick="document.getElementById('form-medica').open = !document.getElementById('form-medica').open">
+            {% if info_medica %}Editar{% else %}Agregar{% endif %}
+          </button>
+          {% endif %}
+        </div>
+
+        {% if info_medica %}
+          <div class="kv"><span class="k">Alergias</span><span class="v">{{ info_medica.alergias|default:"—" }}</span></div>
+          <div class="kv"><span class="k">Celiaquía</span><span class="v {% if info_medica.celiaquia %}bool-yes{% else %}bool-no{% endif %}">{% if info_medica.celiaquia %}Sí{% else %}No{% endif %}</span></div>
+          <div class="kv"><span class="k">Diabetes</span><span class="v {% if info_medica.diabetes %}bool-yes{% else %}bool-no{% endif %}">{% if info_medica.diabetes %}Sí{% else %}No{% endif %}</span></div>
+          <div class="kv"><span class="k">Medicación necesaria</span><span class="v">{{ info_medica.medicacion_necesaria|default:"—" }}</span></div>
+          <div class="kv"><span class="k">Medicación de emergencia</span><span class="v">{{ info_medica.medicacion_emergencia|default:"—" }}</span></div>
+          <div class="kv"><span class="k">Info. médica de emergencia</span><span class="v">{{ info_medica.informacion_medica_emergencia|default:"—" }}</span></div>
+          <div class="kv"><span class="k">Restricciones Ed. Física</span><span class="v">{{ info_medica.restricciones_educacion_fisica|default:"—" }}</span></div>
+        {% else %}
+          <p class="empty">Sin registro de información médica.</p>
+        {% endif %}
+
+        {% if puede_editar %}
+        <details class="inline-form" id="form-medica">
+          <summary></summary>
+          <form method="post" class="inline-form-body">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="guardar_medica">
+            <div class="field"><label>Alergias</label><input name="alergias" value="{{ info_medica.alergias|default:'' }}"></div>
+            <div class="checkline"><input type="checkbox" name="celiaquia" id="chk-celiaquia" {% if info_medica.celiaquia %}checked{% endif %}> <label for="chk-celiaquia">Celiaquía</label></div>
+            <div class="checkline"><input type="checkbox" name="diabetes" id="chk-diabetes" {% if info_medica.diabetes %}checked{% endif %}> <label for="chk-diabetes">Diabetes</label></div>
+            <div class="field"><label>Medicación necesaria</label><input name="medicacion_necesaria" value="{{ info_medica.medicacion_necesaria|default:'' }}"></div>
+            <div class="field"><label>Medicación de emergencia</label><input name="medicacion_emergencia" value="{{ info_medica.medicacion_emergencia|default:'' }}"></div>
+            <div class="field"><label>Información médica de emergencia</label><input name="informacion_medica_emergencia" value="{{ info_medica.informacion_medica_emergencia|default:'' }}"></div>
+            <div class="field"><label>Restricciones para Ed. Física</label><input name="restricciones_educacion_fisica" value="{{ info_medica.restricciones_educacion_fisica|default:'' }}"></div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+
+      <!-- PERSONAS PARA RETIRO -->
+      <div class="block">
+        <div class="block-head">
+          <h4>Personas para retiro</h4>
+          {% if puede_editar %}
+          <button class="mini-btn" type="button" onclick="document.getElementById('form-retiro').open = !document.getElementById('form-retiro').open">+ Agregar</button>
+          {% endif %}
+        </div>
+        {% for p in retiros %}
+        <div class="list-item">
+          <span class="li-title">{{ p.nombre }} {{ p.apellido }} — {{ p.vinculo|default:"—" }}</span>
+          <span class="pill {% if p.autorizado %}estado-ACTIVO{% else %}estado-BAJA{% endif %}" style="margin-left:8px;">{% if p.autorizado %}Autorizado{% else %}No autorizado{% endif %}</span>
+          <div class="li-sub mono">DNI {{ p.dni|default:"—" }} · Tel. {{ p.telefono|default:"—" }}</div>
+        </div>
+        {% empty %}
+        <p class="empty">Sin personas registradas.</p>
+        {% endfor %}
+
+        {% if puede_editar %}
+        <details class="inline-form" id="form-retiro">
+          <summary></summary>
+          <form method="post" class="inline-form-body">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="agregar_retiro">
+            <div class="field"><label>Nombre</label><input name="nombre"></div>
+            <div class="field"><label>Apellido</label><input name="apellido"></div>
+            <div class="field"><label>DNI</label><input name="dni"></div>
+            <div class="field"><label>Teléfono</label><input name="telefono"></div>
+            <div class="field"><label>Vínculo</label><input name="vinculo" placeholder="Madre, Tío, etc."></div>
+            <div class="checkline"><input type="checkbox" name="autorizado" id="chk-autorizado" checked> <label for="chk-autorizado">Autorizado para retirar al alumno</label></div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <!-- ADAPTACIONES -->
+      <div class="block">
+        <div class="block-head">
+          <h4>Adaptaciones y estrategias</h4>
+          {% if puede_editar %}
+          <button class="mini-btn" type="button" onclick="document.getElementById('form-adaptacion').open = !document.getElementById('form-adaptacion').open">+ Agregar</button>
+          {% endif %}
+        </div>
+        {% for ad in adaptaciones %}
+        <div class="list-item">
+          <span class="li-title">{{ ad.adaptaciones_necesarias }}</span>
+          <div class="li-sub">Estrategia: {{ ad.estrategias_funcionales|default:"—" }}</div>
+          {% if ad.observaciones %}<div class="li-sub">Obs.: {{ ad.observaciones }}</div>{% endif %}
+        </div>
+        {% empty %}
+        <p class="empty">Sin adaptaciones registradas.</p>
+        {% endfor %}
+
+        {% if puede_editar %}
+        <details class="inline-form" id="form-adaptacion">
+          <summary></summary>
+          <form method="post" class="inline-form-body">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="agregar_adaptacion">
+            <div class="field"><label>Adaptaciones necesarias</label><textarea name="adaptaciones_necesarias"></textarea></div>
+            <div class="field"><label>Estrategias funcionales</label><textarea name="estrategias_funcionales"></textarea></div>
+            <div class="field"><label>Observaciones</label><textarea name="observaciones"></textarea></div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+
+      <!-- SITUACIONES DE ASISTENCIA -->
+      <div class="block">
+        <div class="block-head">
+          <h4>Situaciones que afectan la asistencia</h4>
+          {% if puede_editar %}
+          <button class="mini-btn" type="button" onclick="document.getElementById('form-situacion').open = !document.getElementById('form-situacion').open">+ Agregar</button>
+          {% endif %}
+        </div>
+        {% for s in situaciones %}
+        <div class="list-item">
+          <span class="li-title">{{ s.tipo }}</span>
+          <div class="li-sub">{{ s.descripcion }}</div>
+          <div class="li-sub mono">{{ s.fecha_inicio|date:"d/m/Y" }} — {{ s.fecha_fin|date:"d/m/Y" }}</div>
+        </div>
+        {% empty %}
+        <p class="empty">Sin situaciones registradas.</p>
+        {% endfor %}
+
+        {% if puede_editar %}
+        <details class="inline-form" id="form-situacion">
+          <summary></summary>
+          <form method="post" class="inline-form-body">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="agregar_situacion">
+            <div class="field"><label>Tipo</label>
+              <select name="tipo" class="tipo-select">
+                {% for val, label in tipos_situacion %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="field"><label>Descripción</label><textarea name="descripcion"></textarea></div>
+            <div class="field"><label>Fecha inicio</label><input type="date" name="fecha_inicio"></div>
+            <div class="field"><label>Fecha fin</label><input type="date" name="fecha_fin"></div>
+            <div class="field"><label>Observaciones</label><textarea name="observaciones"></textarea></div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+
+      {% if informes is not None %}
+      <div class="block">
+        <h4>Informes</h4>
+        {% for i in informes %}
+        <div class="list-item">
+          <span class="li-title">{{ i.fecha|date:"d/m/Y" }} · {{ i.tipo|default:"General" }}</span>
+          <span class="status-badge status-{{ i.estado }}" style="margin-left:8px;">{{ i.estado }}</span>
+          <div class="li-sub">{{ i.mensaje }}</div>
+        </div>
+        {% empty %}
+        <p class="empty">Sin informes para este alumno.</p>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
 
   {% if puede_informar %}
   <div class="block">
-    <h4>Informar una situación al directivo</h4>
+    <h4>Informar una situación</h4>
     <form method="post">
       {% csrf_token %}
+      <input type="hidden" name="accion" value="enviar_informe">
+      <select name="tipo" class="tipo-select">
+        {% for val, label in tipos_informe %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+      </select>
       <textarea name="mensaje" placeholder="Contale al directivo qué está pasando con {{ alumno.nombre }}…"></textarea>
       <div style="margin-top:10px; text-align:right;">
-        <button type="submit" class="btn btn-primary">Enviar informe</button>
+        <button type="submit" class="btn btn-primary">Enviar al directivo</button>
       </div>
     </form>
   </div>

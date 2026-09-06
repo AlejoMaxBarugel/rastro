@@ -4,22 +4,22 @@
 {% block page_sub %}Tabla ALUMNO — datos básicos{% endblock %}
 {% block content %}
 <a class="back-link" href="{% url 'directivo_alumnos' %}">&larr; Volver</a>
-<div class="detail-panel" style="max-width:480px;">
-  <form method="post">
+<div class="detail-panel" style="max-width:520px;">
+  <form method="post" id="alumno-form">
     {% csrf_token %}
     <input type="hidden" name="solo_refrescar" id="solo-refrescar" value="">
-
-    <div class="field"><label>Nombre</label><input name="nombre" value="{{ alumno.nombre|default:'' }}"></div>
-    <div class="field"><label>Apellido</label><input name="apellido" value="{{ alumno.apellido|default:'' }}"></div>
-    <div class="field"><label>DNI</label><input name="dni" value="{{ alumno.dni|default:'' }}"></div>
+    <div class="field"><label>Nombre</label><input name="nombre" value="{{ alumno.nombre|default:'' }}" required></div>
+    <div class="field"><label>Apellido</label><input name="apellido" value="{{ alumno.apellido|default:'' }}" required></div>
+    <div class="field"><label>DNI</label><input name="dni" value="{{ alumno.dni|default:'' }}" required></div>
 
     <div class="field">
       <label>Grado</label>
-      <select name="id_grado" onchange="document.getElementById('solo-refrescar').value='1'; this.form.submit()">
+      <select name="id_grado" id="select-grado" onchange="document.getElementById('solo-refrescar').value='1'; this.form.submit()">
         {% for g in grados %}
         <option value="{{ g.id_grado }}" {% if grado_sel == g.id_grado or alumno.grado_id == g.id_grado %}selected{% endif %}>{{ g.nombre_grado }}</option>
         {% endfor %}
       </select>
+      <p style="font-size:11px;color:var(--ink-soft);margin:4px 0 0;">Al cambiar el grado se recarga la página para actualizar las divisiones disponibles.</p>
     </div>
 
     <div class="field">
@@ -43,15 +43,15 @@
     <div class="field">
       <label>Estado</label>
       <select name="estado">
-        <option value="ACTIVO" {% if alumno.estado == "ACTIVO" %}selected{% endif %}>ACTIVO</option>
-        <option value="INACTIVO" {% if alumno.estado == "INACTIVO" %}selected{% endif %}>INACTIVO</option>
-        <option value="EGRESADO" {% if alumno.estado == "EGRESADO" %}selected{% endif %}>EGRESADO</option>
-        <option value="BAJA" {% if alumno.estado == "BAJA" %}selected{% endif %}>BAJA</option>
+        {% for val, label in estados %}<option value="{{ val }}" {% if alumno.estado == val %}selected{% endif %}>{{ val }}</option>{% endfor %}
       </select>
     </div>
 
-    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
-      {% if alumno %}<a class="btn btn-danger" href="{% url 'alumno_eliminar' alumno.id_alumno %}">Eliminar</a>{% endif %}
+    <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+      {% if alumno %}
+      <a class="btn btn-danger" href="{% url 'alumno_eliminar' alumno.id_alumno %}">Eliminar</a>
+      {% endif %}
+      <a class="btn btn-secondary" href="{% url 'directivo_alumnos' %}">Cancelar</a>
       <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
   </form>

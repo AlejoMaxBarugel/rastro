@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear cuenta — Rastro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div>
+        <div class="logo">
+          <svg class="icon" viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--accent);"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+          <span>Rastro</span>
+        </div>
+        <p class="tagline">Creá tu cuenta de Padre/Tutor para seguir de cerca la ficha escolar de tus hijos.</p>
+      </div>
+      <div class="footprint-row">
+        <svg class="icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="4" cy="4" r="1.4" fill="currentColor" stroke="none"/><circle cx="10" cy="9" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1.4" fill="currentColor" stroke="none"/><circle cx="22" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg>
+        <span style="font-size:11px;">Registro de Padres/Tutores</span>
+      </div>
+    </div>
+    <div class="login-right">
+      <h2>Crear cuenta</h2>
+      <p class="sub">Completá tus datos. Si ya sabés el DNI de tu hijo/a, podés vincularlo ahora mismo.</p>
+
+      {% for e in errores %}<div class="msg error">{{ e }}</div>{% endfor %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="field"><label>Nombre</label><input type="text" name="nombre" required></div>
+        <div class="field"><label>Apellido</label><input type="text" name="apellido" required></div>
+        <div class="field"><label>DNI</label><input type="text" name="dni" required></div>
+        <div class="field"><label>Teléfono</label><input type="text" name="telefono"></div>
+        <div class="field"><label>Email</label><input type="email" name="email"></div>
+        <div class="field"><label>Nombre de usuario</label><input type="text" name="nombre_usuario" required></div>
+        <div class="field"><label>Contraseña</label><input type="password" name="contrasena" required></div>
+        <div class="field"><label>Repetir contraseña</label><input type="password" name="contrasena2" required></div>
+        <div class="field">
+          <label>DNI de tu hijo/a (opcional)</label>
+          <input type="text" name="dni_hijo" placeholder="Dejalo en blanco si no lo tenés a mano">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+      </form>
+      <p class="hint"><a href="{% url 'login' %}">Ya tengo cuenta, iniciar sesión</a></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

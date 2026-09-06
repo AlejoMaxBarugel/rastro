@@ -3,9 +3,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Rastro{% endblock %} — Rastro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
 </head>
 <body>
@@ -15,42 +16,48 @@
       <svg class="icon" viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--accent);"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
       <span class="txt">Rastro</span>
     </div>
-    <div class="logo-sub">{{ usuario.rol }}</div>
+    <div class="logo-sub">{{ usuario_actual.rol }}</div>
 
-    {% with url_name=request.resolver_match.url_name %}
-    {% if usuario.rol == "PADRE" %}
-      <a class="nav-item active" href="{% url 'padre_hijos' %}">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>
-        <span class="lbl">Mis hijos</span>
-      </a>
-    {% elif usuario.rol == "DIRECTIVO" %}
-      <a class="nav-item {% if url_name in 'directivo_alumnos,alumno_nuevo,alumno_editar,alumno_eliminar' %}active{% endif %}" href="{% url 'directivo_alumnos' %}">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>
-        <span class="lbl">Alumnos</span>
-      </a>
-      <a class="nav-item {% if url_name in 'directivo_informes,informe_cambiar_estado' %}active{% endif %}" href="{% url 'directivo_informes' %}">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h6M9 17h6"/></svg>
-        <span class="lbl">Informes</span>
-      </a>
-    {% elif usuario.rol == "DOCENTE" %}
-      <a class="nav-item active" href="{% url 'docente_alumnos' %}">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>
-        <span class="lbl">Mis alumnos</span>
-      </a>
-    {% elif usuario.rol == "SUPERVISOR" %}
-      <a class="nav-item active" href="{% url 'supervisor_alumnos' %}">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>
-        <span class="lbl">Todos los alumnos</span>
-      </a>
-    {% endif %}
-    {% endwith %}
+    <div id="nav-list">
+      {% with url_name=request.resolver_match.url_name %}
+      {% if usuario_actual.rol == "PADRE" %}
+        <a class="nav-item active" href="{% url 'padre_hijos' %}">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.5 14.3c2.7.4 4.5 2.4 4.5 5.7"/></svg>
+          <span class="lbl">Mis hijos</span>
+        </a>
+      {% elif usuario_actual.rol == "DIRECTIVO" %}
+        <a class="nav-item {% if url_name in 'directivo_alumnos,alumno_nuevo,alumno_editar,alumno_eliminar' %}active{% endif %}" href="{% url 'directivo_alumnos' %}">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.5 14.3c2.7.4 4.5 2.4 4.5 5.7"/></svg>
+          <span class="lbl">Alumnos</span>
+        </a>
+        <a class="nav-item {% if url_name in 'directivo_informes,informe_cambiar_estado' %}active{% endif %}" href="{% url 'directivo_informes' %}">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+          <span class="lbl">Informes</span>
+        </a>
+      {% elif usuario_actual.rol == "DOCENTE" %}
+        <a class="nav-item active" href="{% url 'docente_alumnos' %}">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.5 14.3c2.7.4 4.5 2.4 4.5 5.7"/></svg>
+          <span class="lbl">Mis alumnos</span>
+        </a>
+      {% elif usuario_actual.rol == "SUPERVISOR" %}
+        <a class="nav-item {% if url_name == 'supervisor_alumnos' %}active{% endif %}" href="{% url 'supervisor_alumnos' %}">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.5 14.3c2.7.4 4.5 2.4 4.5 5.7"/></svg>
+          <span class="lbl">Todos los alumnos</span>
+        </a>
+        <a class="nav-item {% if url_name == 'supervisor_panorama' %}active{% endif %}" href="{% url 'supervisor_panorama' %}">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M11 20V4M18 20v-7"/></svg>
+          <span class="lbl">Panorama general</span>
+        </a>
+      {% endif %}
+      {% endwith %}
+    </div>
 
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="avatar">{{ usuario.nombre|slice:":1" }}{{ usuario.apellido|slice:":1" }}</div>
+        <div class="avatar">{{ usuario_actual.iniciales }}</div>
         <div class="u-info">
-          <div class="u-name">{{ usuario.nombre }} {{ usuario.apellido }}</div>
-          <div class="u-role">{{ usuario.rol }}</div>
+          <div class="u-name">{{ usuario_actual.nombre_completo }}</div>
+          <div class="u-role">{{ usuario_actual.rol }}</div>
         </div>
       </div>
       <a class="logout-btn" href="{% url 'logout' %}">
@@ -65,6 +72,38 @@
       <div>
         <div class="page-title">{% block page_title %}{% endblock %}</div>
         <div class="page-sub">{% block page_sub %}{% endblock %}</div>
+      </div>
+      <div class="topbar-right">
+        {% if usuario_actual.rol == "DOCENTE" %}
+        <div class="bell-wrap" id="bell-wrap">
+          <button type="button" class="bell-btn" onclick="document.getElementById('bell-wrap').classList.toggle('open')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0"/></svg>
+            {% if notificaciones_no_leidas %}<span class="bell-badge">{{ notificaciones_no_leidas }}</span>{% endif %}
+          </button>
+          <div class="bell-dropdown">
+            <div class="bell-dropdown-head">
+              <h4>Notificaciones</h4>
+              {% if notificaciones %}
+              <form method="post" action="{% url 'notificaciones_marcar_todas' %}">{% csrf_token %}
+                <button type="submit">Marcar todas leídas</button>
+              </form>
+              {% endif %}
+            </div>
+            {% if notificaciones %}
+              {% for n in notificaciones %}
+              <form method="post" action="{% url 'notificacion_leer' n.id_notif %}">{% csrf_token %}
+                <button type="submit" class="notif-item {% if not n.leido %}unread{% endif %}">
+                  <div class="n-msg">{{ n.mensaje }}</div>
+                  <div class="n-meta mono">{{ n.fecha|date:"d/m/Y" }}</div>
+                </button>
+              </form>
+              {% endfor %}
+            {% else %}
+              <div class="notif-empty">No tenés notificaciones nuevas.</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
     <main>

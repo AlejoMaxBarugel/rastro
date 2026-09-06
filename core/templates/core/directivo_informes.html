@@ -3,28 +3,31 @@
 {% block page_title %}Informes{% endblock %}
 {% block page_sub %}Novedades enviadas por padres y tutores{% endblock %}
 {% block content %}
+{% if informes %}
 <table>
-<tr><th>Alumno</th><th>Padre/Tutor</th><th>Mensaje</th><th>Fecha</th><th>Estado</th><th></th></tr>
-{% for i in informes %}
-<tr>
-  <td>{{ i.alumno.nombre }} {{ i.alumno.apellido }}</td>
-  <td>{{ i.padre.usuario.nombre }} {{ i.padre.usuario.apellido }}</td>
-  <td>{{ i.mensaje }}</td>
-  <td class="mono">{{ i.fecha }}</td>
-  <td>
-    <form method="post" action="{% url 'informe_cambiar_estado' i.id_informe %}">
-      {% csrf_token %}
-      <select name="estado" class="status-select" onchange="this.form.submit()">
-        <option value="ENVIADO" {% if i.estado == "ENVIADO" %}selected{% endif %}>ENVIADO</option>
-        <option value="REVISADO" {% if i.estado == "REVISADO" %}selected{% endif %}>REVISADO</option>
-        <option value="RESUELTO" {% if i.estado == "RESUELTO" %}selected{% endif %}>RESUELTO</option>
-      </select>
-    </form>
-  </td>
-  <td><a class="mini-btn" href="{% url 'alumno_detail' i.alumno.id_alumno %}">Ver ficha</a></td>
-</tr>
-{% empty %}
-<tr><td colspan="6">No hay informes.</td></tr>
-{% endfor %}
+  <thead><tr><th>Alumno</th><th>Padre/Tutor</th><th>Tipo</th><th>Mensaje</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+    {% for i in informes %}
+    <tr>
+      <td>{{ i.alumno.nombre }} {{ i.alumno.apellido }}</td>
+      <td>{{ i.padre.usuario.nombre }} {{ i.padre.usuario.apellido }}</td>
+      <td><span class="pill">{{ i.tipo|default:"General" }}</span></td>
+      <td>{{ i.mensaje }}</td>
+      <td class="mono">{{ i.fecha|date:"d/m/Y" }}</td>
+      <td>
+        <form method="post" action="{% url 'informe_cambiar_estado' i.id_informe %}">
+          {% csrf_token %}
+          <select name="estado" class="status-select" onchange="this.form.submit()">
+            {% for val, label in i.ESTADO_CHOICES %}<option value="{{ val }}" {% if i.estado == val %}selected{% endif %}>{{ val }}</option>{% endfor %}
+          </select>
+        </form>
+      </td>
+      <td><a class="mini-btn" href="{% url 'alumno_detail' i.alumno.id_alumno %}">Ver ficha</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+{% else %}
+<p class="empty">No hay informes registrados.</p>
+{% endif %}
 {% endblock %}

@@ -5,10 +5,10 @@
 {% block content %}
 <div class="block" style="margin-bottom:20px;">
   <h4>Mis asignaciones {% if docente.especialidad %}· {{ docente.especialidad }}{% endif %}</h4>
-  {% for a in asignaciones %}
+  {% for s in asignaciones %}
   <div class="list-item">
-    <span class="li-title">{{ a.grado.nombre_grado }} · División {{ a.division.nombre_division }}</span>
-    <div class="li-sub">Turno {{ a.turno.nombre_turno }}</div>
+    <span class="li-title">{{ s.grado.nombre_grado }} · División {{ s.division.nombre_division }}</span>
+    <div class="li-sub">Turno {{ s.turno.nombre_turno }}</div>
   </div>
   {% empty %}
   <p class="empty">Sin asignaciones.</p>
@@ -16,16 +16,20 @@
 </div>
 
 <div class="card-grid">
-{% for a in alumnos %}
+  {% for a in alumnos %}
   <a class="index-card" href="{% url 'alumno_detail' a.id_alumno %}">
     <div class="clip"></div>
-    <div class="avatar">{{ a.nombre|slice:":1" }}{{ a.apellido|slice:":1" }}</div>
+    {% if a.id_alumno in no_leidas_por_alumno %}<span class="updated-flag">Actualizado</span>{% endif %}
+    <div class="avatar">{{ a.iniciales }}</div>
     <div class="aname">{{ a.nombre }} {{ a.apellido }}</div>
     <div class="ameta">{{ a.grado.nombre_grado }} · Div. {{ a.division.nombre_division }} · Turno {{ a.turno.nombre_turno }}</div>
-    <span class="pill estado-{{ a.estado }}">{{ a.estado }}</span>
+    <div class="pills">
+      <span class="pill estado-{{ a.estado }}">{{ a.estado }}</span>
+      <span class="pill mono">DNI {{ a.dni }}</span>
+    </div>
   </a>
-{% empty %}
+  {% empty %}
   <p class="empty">No hay alumnos en tus asignaciones.</p>
-{% endfor %}
+  {% endfor %}
 </div>
 {% endblock %}

@@ -3,27 +3,33 @@
 {% block page_title %}Alumnos{% endblock %}
 {% block page_sub %}Alta, baja y modificación de alumnos{% endblock %}
 {% block content %}
-<div class="toolbar">
-  <form method="get" style="display:flex; gap:10px;">
-    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o DNI…" onchange="this.form.submit()">
-  </form>
+<form method="get" class="toolbar">
+  <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o DNI…" onchange="this.form.submit()">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for val, label in estados %}<option value="{{ val }}" {% if estado == val %}selected{% endif %}>{{ val }}</option>{% endfor %}
+  </select>
   <a class="btn btn-primary" style="margin-left:auto;" href="{% url 'alumno_nuevo' %}">+ Nuevo alumno</a>
-</div>
+</form>
 
+{% if alumnos %}
 <table>
-<tr><th>Alumno</th><th>DNI</th><th>Grado</th><th>División</th><th>Turno</th><th>Estado</th><th></th></tr>
-{% for a in alumnos %}
-<tr>
-  <td><a href="{% url 'alumno_detail' a.id_alumno %}" style="color:var(--blue);font-weight:600;text-decoration:none;">{{ a.nombre }} {{ a.apellido }}</a></td>
-  <td class="mono">{{ a.dni }}</td>
-  <td>{{ a.grado.nombre_grado }}</td>
-  <td>{{ a.division.nombre_division }}</td>
-  <td>{{ a.turno.nombre_turno }}</td>
-  <td><span class="pill estado-{{ a.estado }}">{{ a.estado }}</span></td>
-  <td><a class="mini-btn" href="{% url 'alumno_editar' a.id_alumno %}">Editar</a></td>
-</tr>
-{% empty %}
-<tr><td colspan="7">No se encontraron alumnos.</td></tr>
-{% endfor %}
+  <thead><tr><th>Alumno</th><th>DNI</th><th>Grado</th><th>División</th><th>Turno</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+    {% for a in alumnos %}
+    <tr>
+      <td><a href="{% url 'alumno_detail' a.id_alumno %}" style="color:var(--blue);font-weight:600;text-decoration:none;">{{ a.nombre }} {{ a.apellido }}</a></td>
+      <td class="mono">{{ a.dni }}</td>
+      <td>{{ a.grado.nombre_grado }}</td>
+      <td>{{ a.division.nombre_division }}</td>
+      <td>{{ a.turno.nombre_turno }}</td>
+      <td><span class="pill estado-{{ a.estado }}">{{ a.estado }}</span></td>
+      <td><a class="mini-btn" href="{% url 'alumno_editar' a.id_alumno %}">Editar</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+{% else %}
+<p class="empty">No se encontraron alumnos.</p>
+{% endif %}
 {% endblock %}

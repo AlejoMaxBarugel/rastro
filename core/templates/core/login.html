@@ -3,9 +3,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Iniciar sesión — Rastro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
 </head>
 <body>
@@ -20,31 +21,56 @@
         <p class="tagline">Cada alumno deja un rastro: su ficha, su historia médica, sus informes. Este sistema lo sigue de cerca.</p>
       </div>
       <div class="footprint-row">
+        <svg class="icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="4" cy="4" r="1.4" fill="currentColor" stroke="none"/><circle cx="10" cy="9" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1.4" fill="currentColor" stroke="none"/><circle cx="22" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg>
         <span style="font-size:11px;">Seguimiento escolar por rol · conectado a SQLite</span>
       </div>
     </div>
     <div class="login-right">
       <h2>Iniciar sesión</h2>
-      <p class="sub">Ingresá con tu usuario y contraseña.</p>
+      <p class="sub">Elegí el usuario de ejemplo con el rol que querés probar (los cuatro fueron cargados por <code>seed_data</code>).</p>
 
       {% if messages %}
         {% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
       {% endif %}
 
-      <form method="post">
+      <form method="post" id="login-form">
         {% csrf_token %}
-        <div class="field">
-          <label>Usuario</label>
-          <input type="text" name="nombre_usuario" autocomplete="off">
+        <div class="role-grid">
+          {% for u in roster %}
+          <button type="button" class="role-tile" data-user="{{ u.nombre_usuario }}" onclick="selectRole(this)">
+            <span class="tag {{ u.rol|lower }}">{{ u.rol }}</span>
+            <div class="name">{{ u.nombre }} {{ u.apellido }}</div>
+            <div class="desc">
+              {% if u.rol == "PADRE" %}Ve solo a sus hijos
+              {% elif u.rol == "DIRECTIVO" %}Gestiona alumnos e informes
+              {% elif u.rol == "DOCENTE" %}Ve su grado/división/turno
+              {% else %}Consulta general, sin edición{% endif %}
+            </div>
+          </button>
+          {% endfor %}
         </div>
         <div class="field">
-          <label>Contraseña</label>
-          <input type="password" name="contrasena">
+          <label for="in-user">Usuario</label>
+          <input id="in-user" name="nombre_usuario" type="text" placeholder="nombre_usuario" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="in-pass">Contraseña</label>
+          <input id="in-pass" name="contrasena" type="password" placeholder="pass123">
         </div>
         <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
       </form>
+      <p class="hint">Todos los usuarios de ejemplo usan la contraseña <span class="mono">pass123</span>.</p>
+      <p class="hint"><a href="{% url 'registro_padre' %}">¿Sos padre/tutor y no tenés cuenta? Registrate acá</a></p>
     </div>
   </div>
 </div>
+<script>
+function selectRole(btn){
+  document.querySelectorAll('.role-tile').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('in-user').value = btn.dataset.user;
+  document.getElementById('in-pass').value = 'pass123';
+}
+</script>
 </body>
 </html>

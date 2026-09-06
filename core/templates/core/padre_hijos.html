@@ -4,10 +4,10 @@
 {% block page_sub %}Alumnos asociados a tu cuenta{% endblock %}
 {% block content %}
 <div class="card-grid">
-{% for a in hijos %}
+  {% for a in hijos %}
   <a class="index-card" href="{% url 'alumno_detail' a.id_alumno %}">
     <div class="clip"></div>
-    <div class="avatar">{{ a.nombre|slice:":1" }}{{ a.apellido|slice:":1" }}</div>
+    <div class="avatar">{{ a.iniciales }}</div>
     <div class="aname">{{ a.nombre }} {{ a.apellido }}</div>
     <div class="ameta">{{ a.grado.nombre_grado }} · Div. {{ a.division.nombre_division }} · Turno {{ a.turno.nombre_turno }}</div>
     <div class="pills">
@@ -15,8 +15,8 @@
       <span class="pill mono">DNI {{ a.dni }}</span>
     </div>
   </a>
-{% empty %}
+  {% empty %}
   <p class="empty">No tenés alumnos asociados.</p>
-{% endfor %}
+  {% endfor %}
 </div>
 {% endblock %}

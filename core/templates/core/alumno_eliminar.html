@@ -5,6 +5,7 @@
 {% block content %}
 <div class="center-box">
   <h3 style="margin-top:0;">¿Eliminar a {{ alumno.nombre }} {{ alumno.apellido }}?</h3>
+  <p style="color:var(--ink-soft);font-size:13.5px;">Se borrará también su información médica, adaptaciones, situaciones de asistencia, personas de retiro e informes asociados.</p>
   <form method="post" style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
     {% csrf_token %}
     <a class="btn btn-secondary" href="{% url 'alumno_editar' alumno.id_alumno %}">Cancelar</a>

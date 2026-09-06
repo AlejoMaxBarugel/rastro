@@ -1,5 +1,4 @@
-import random
-from datetime import date, timedelta
+from datetime import date
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -10,186 +9,95 @@ from core.models import (
     SituacionAsistencia, Supervisor, Turno, Usuario,
 )
 
-NOMBRES = ["Juan", "María", "Carlos", "Ana", "Roberto", "Laura", "Pedro", "Sofía",
-           "Diego", "Valentina", "Martín", "Camila", "Lucas", "Julieta", "Nicolás",
-           "Agustina", "Franco", "Renata", "Tomás", "Bianca", "Federico", "Milagros",
-           "Ignacio", "Delfina", "Santiago", "Catalina", "Joaquín", "Martina",
-           "Emiliano", "Victoria"]
-
-APELLIDOS = ["Pérez", "Gómez", "López", "Martínez", "Rodríguez", "Sánchez",
-             "Fernández", "Díaz", "Álvarez", "Romero", "Torres", "Flores",
-             "Acosta", "Benítez", "Suárez", "Molina", "Ortiz", "Silva",
-             "Núñez", "Rojas", "Medina", "Herrera", "Aguirre", "Cabrera"]
-
-ESPECIALIDADES = ["Matemáticas", "Lengua y Literatura", "Educación Física",
-                   "Música", "Inglés", "Arte", "Ciencias Naturales", "Historia"]
-
-VINCULOS = ["Madre", "Padre", "Abuela", "Abuelo", "Tío", "Tía", "Hermano/a mayor"]
-
-TIPOS_SITUACION = ["Enfermedad del alumno", "Enfermedad familiar", "Situación familiar",
-                    "Problema de transporte", "Otro"]
-
-ESTADOS_ALUMNO = ["ACTIVO", "ACTIVO", "ACTIVO", "INACTIVO", "EGRESADO", "BAJA"]
-ESTADOS_INFORME = ["ENVIADO", "REVISADO", "RESUELTO"]
-
-
-def nombre_random():
-    return random.choice(NOMBRES), random.choice(APELLIDOS)
-
-
-def fecha_random(desde, hasta):
-    delta = (hasta - desde).days
-    return desde + timedelta(days=random.randint(0, delta))
-
 
 class Command(BaseCommand):
-    help = "Carga ~20 registros de ejemplo en cada tabla de Rastro."
+    help = "Carga los datos de prueba de Rastro (equivalente a los scripts sqlite3 originales)."
 
     def add_arguments(self, parser):
-        parser.add_argument("--reset", action="store_true",
-                             help="Borra todos los datos antes de cargar de nuevo.")
+        parser.add_argument(
+            "--reset", action="store_true",
+            help="Borra todos los datos existentes antes de volver a cargarlos.",
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
         if options["reset"]:
-            for modelo in [AdaptacionAlumno, SituacionAsistencia, PersonaRetiro,
-                           InformacionMedica, Informe, PadreAlumno, AsignacionDocente,
-                           Alumno, Division, Grado, Turno, Docente, Supervisor,
-                           Directivo, Padre, Usuario]:
-                modelo.objects.all().delete()
+            self.stdout.write("Borrando datos existentes...")
+            for model in [
+                AdaptacionAlumno, SituacionAsistencia, PersonaRetiro, InformacionMedica,
+                Informe, PadreAlumno, AsignacionDocente, Alumno, Turno, Division, Grado,
+                Docente, Supervisor, Directivo, Padre, Usuario,
+            ]:
+                model.objects.all().delete()
 
         if Usuario.objects.exists():
             self.stdout.write(self.style.WARNING(
-                "Ya hay datos cargados. Usá --reset para borrar todo y recargar."))
+                "Ya hay datos cargados. Usá 'python manage.py seed_data --reset' para reiniciar."
+            ))
             return
 
-        dni_usuario = 20000000
-        dni_alumno = 50000000
+        # 1. USUARIOS
+        u_juan = Usuario.objects.create(nombre_usuario="juan_perez", contrasena="pass123", nombre="Juan", apellido="Pérez", dni="30111222", telefono="1144445555", email="juan.perez@email.com", rol=Usuario.ROL_DIRECTIVO)
+        u_maria = Usuario.objects.create(nombre_usuario="maria_gomez", contrasena="pass123", nombre="María", apellido="Gómez", dni="31222333", telefono="1144446666", email="maria.gomez@email.com", rol=Usuario.ROL_SUPERVISOR)
+        u_carlos = Usuario.objects.create(nombre_usuario="carlos_lopez", contrasena="pass123", nombre="Carlos", apellido="López", dni="32333444", telefono="1144447777", email="carlos.lopez@email.com", rol=Usuario.ROL_DOCENTE)
+        u_ana = Usuario.objects.create(nombre_usuario="ana_martinez", contrasena="pass123", nombre="Ana", apellido="Martínez", dni="33444555", telefono="1144448888", email="ana.martinez@email.com", rol=Usuario.ROL_DOCENTE)
+        u_roberto = Usuario.objects.create(nombre_usuario="roberto_rodriguez", contrasena="pass123", nombre="Roberto", apellido="Rodríguez", dni="28555666", telefono="1144449999", email="roberto.r@email.com", rol=Usuario.ROL_PADRE)
+        u_laura = Usuario.objects.create(nombre_usuario="laura_sanchez", contrasena="pass123", nombre="Laura", apellido="Sánchez", dni="29666777", telefono="1155550000", email="laura.s@email.com", rol=Usuario.ROL_PADRE)
 
-        def crear_usuario(rol):
-            nonlocal dni_usuario
-            nombre, apellido = nombre_random()
-            dni_usuario += random.randint(1, 5)
-            n_usuario = f"{nombre.lower()}.{apellido.lower()}{dni_usuario % 1000}"
-            u = Usuario.objects.create(
-                nombre_usuario=n_usuario, contrasena="pass123",
-                nombre=nombre, apellido=apellido, dni=str(dni_usuario),
-                telefono=f"261-{random.randint(4000000,4999999)}",
-                email=f"{n_usuario}@email.com", rol=rol,
-            )
-            return u
+        # 2. ROLES ESPECÍFICOS
+        Directivo.objects.create(usuario=u_juan)
+        Supervisor.objects.create(usuario=u_maria)
+        d_carlos = Docente.objects.create(usuario=u_carlos, especialidad="Matemáticas")
+        d_ana = Docente.objects.create(usuario=u_ana, especialidad="Lengua y Literatura")
+        p_roberto = Padre.objects.create(usuario=u_roberto)
+        p_laura = Padre.objects.create(usuario=u_laura)
 
-        # 1-4. USUARIO + roles (20 de cada uno)
-        directivos = [Directivo.objects.create(usuario=crear_usuario("DIRECTIVO")) for _ in range(20)]
-        supervisores = [Supervisor.objects.create(usuario=crear_usuario("SUPERVISOR")) for _ in range(20)]
-        docentes = [Docente.objects.create(usuario=crear_usuario("DOCENTE"),
-                                            especialidad=random.choice(ESPECIALIDADES))
-                    for _ in range(20)]
-        padres = [Padre.objects.create(usuario=crear_usuario("PADRE")) for _ in range(20)]
+        # 3. ESTRUCTURA ESCOLAR
+        g1 = Grado.objects.create(nombre_grado="1° Año")
+        g2 = Grado.objects.create(nombre_grado="2° Año")
+        Grado.objects.create(nombre_grado="3° Año")
 
-        # 5. GRADO (20)
-        grados = [Grado.objects.create(nombre_grado=f"{i}° Grado") for i in range(1, 21)]
+        d1a = Division.objects.create(nombre_division="A", grado=g1)
+        Division.objects.create(nombre_division="B", grado=g1)
+        d2a = Division.objects.create(nombre_division="A", grado=g2)
+        Division.objects.create(nombre_division="B", grado=g2)
 
-        # 6. TURNO (20, con nombres repetidos a propósito)
-        nombres_turno = ["Mañana", "Tarde", "Vespertino", "Doble Jornada"]
-        turnos = [Turno.objects.create(nombre_turno=random.choice(nombres_turno)) for _ in range(20)]
+        t_manana = Turno.objects.create(nombre_turno="Mañana")
+        t_tarde = Turno.objects.create(nombre_turno="Tarde")
 
-        # 7. DIVISION (20, cada una asociada a un grado al azar)
-        letras = ["A", "B", "C", "D"]
-        divisiones = [Division.objects.create(nombre_division=random.choice(letras),
-                                               grado=random.choice(grados))
-                      for _ in range(20)]
+        # 4. ASIGNACIÓN DOCENTE
+        AsignacionDocente.objects.create(docente=d_carlos, grado=g1, division=d1a, turno=t_manana)
+        AsignacionDocente.objects.create(docente=d_ana, grado=g2, division=d2a, turno=t_tarde)
 
-        # 8. ASIGNACION_DOCENTE (20)
-        asignaciones = []
-        for _ in range(20):
-            division = random.choice(divisiones)
-            asignaciones.append(AsignacionDocente.objects.create(
-                docente=random.choice(docentes), grado=division.grado,
-                division=division, turno=random.choice(turnos),
-            ))
+        # 5. ALUMNOS
+        lucas = Alumno.objects.create(nombre="Lucas", apellido="Rodríguez", dni="50111222", foto="foto_lucas.png", grado=g1, division=d1a, turno=t_manana, estado=Alumno.ESTADO_ACTIVO)
+        sofia = Alumno.objects.create(nombre="Sofia", apellido="Rodríguez", dni="51222333", foto="foto_sofia.png", grado=g2, division=d2a, turno=t_tarde, estado=Alumno.ESTADO_ACTIVO)
+        mateo = Alumno.objects.create(nombre="Mateo", apellido="Sánchez", dni="52333444", foto="foto_mateo.png", grado=g1, division=d1a, turno=t_manana, estado=Alumno.ESTADO_ACTIVO)
 
-        # 9. ALUMNO (20)
-        alumnos = []
-        for _ in range(20):
-            nombre, apellido = nombre_random()
-            dni_alumno += random.randint(1, 5)
-            division = random.choice(divisiones)
-            alumnos.append(Alumno.objects.create(
-                nombre=nombre, apellido=apellido, dni=str(dni_alumno),
-                grado=division.grado, division=division,
-                turno=random.choice(turnos), estado=random.choice(ESTADOS_ALUMNO),
-            ))
+        # 6. RELACIÓN PADRE_ALUMNO (N:M)
+        PadreAlumno.objects.create(padre=p_roberto, alumno=lucas)
+        PadreAlumno.objects.create(padre=p_roberto, alumno=sofia)
+        PadreAlumno.objects.create(padre=p_laura, alumno=mateo)
 
-        # 10. PADRE_ALUMNO (20 vínculos únicos)
-        vinculos_creados = set()
-        intentos = 0
-        while len(vinculos_creados) < 20 and intentos < 200:
-            intentos += 1
-            padre = random.choice(padres)
-            alumno = random.choice(alumnos)
-            if (padre.id_padre, alumno.id_alumno) in vinculos_creados:
-                continue
-            PadreAlumno.objects.create(padre=padre, alumno=alumno)
-            vinculos_creados.add((padre.id_padre, alumno.id_alumno))
+        # 7. INFORMACIÓN MÉDICA
+        InformacionMedica.objects.create(alumno=lucas, alergias="Polen, Penicilina", celiaquia=False, diabetes=False, medicacion_necesaria="Ventolín en caso de crisis", medicacion_emergencia="Llamar a la madre", informacion_medica_emergencia="Ninguna", restricciones_educacion_fisica="Sin restricción")
+        InformacionMedica.objects.create(alumno=sofia, alergias="Ninguna", celiaquia=True, diabetes=False, medicacion_necesaria="No consume gluten", medicacion_emergencia="N/A", informacion_medica_emergencia="Avisar si ingiere TACC", restricciones_educacion_fisica="Sin restricción")
 
-        vinculos = list(PadreAlumno.objects.select_related("padre", "alumno"))
+        # 8. PERSONAS DE RETIRO
+        PersonaRetiro.objects.create(alumno=lucas, nombre="Marta", apellido="Gómez", dni="18111222", telefono="1166667777", vinculo="Abuela", autorizado=True)
+        PersonaRetiro.objects.create(alumno=mateo, nombre="Jorge", apellido="Sánchez", dni="17222333", telefono="1177778888", vinculo="Tío", autorizado=True)
 
-        # 11. INFORME (20) — siempre entre un padre y un hijo real suyo
-        for _ in range(20):
-            v = random.choice(vinculos)
-            Informe.objects.create(
-                padre=v.padre, alumno=v.alumno,
-                mensaje=f"Novedad sobre {v.alumno.nombre}: seguimiento de rutina.",
-                fecha=fecha_random(date(2026, 3, 1), date(2026, 8, 1)),
-                estado=random.choice(ESTADOS_INFORME),
-            )
+        # 9. INFORMES, ADAPTACIONES Y ASISTENCIA
+        Informe.objects.create(
+            padre=p_roberto, alumno=lucas, tipo="Situación médica",
+            mensaje="Lucas no puede hacer educación física hoy: el cardiólogo le detectó un soplo y le indicó reposo hasta la próxima consulta.",
+            fecha=date(2026, 3, 10), estado=Informe.ESTADO_ENVIADO,
+        )
+        AdaptacionAlumno.objects.create(alumno=mateo, adaptaciones_necesarias="Uso de tipografía más grande en exámenes", estrategias_funcionales="Ubicación en primera fila", observaciones="Requiere pausa de 5 min en evaluaciones largas")
+        SituacionAsistencia.objects.create(alumno=lucas, tipo="Licencia Médica", descripcion="Cuadro gripal con reposo indicado", fecha_inicio=date(2026, 3, 15), fecha_fin=date(2026, 3, 18), observaciones="Presentó certificado")
 
-        # 12. INFORMACION_MEDICA (una por alumno, hasta 20)
-        for alumno in alumnos:
-            InformacionMedica.objects.create(
-                alumno=alumno,
-                alergias=random.choice(["Ninguna", "Polen", "Penicilina", "Frutos secos"]),
-                celiaquia=random.random() < 0.15,
-                diabetes=random.random() < 0.08,
-                medicacion_necesaria=random.choice(["—", "Ventolín si hace falta", "Antihistamínico"]),
-                medicacion_emergencia=random.choice(["—", "Llamar a la familia", "Glucagón en botiquín"]),
-                informacion_medica_emergencia="Contactar a la familia ante cualquier síntoma.",
-                restricciones_educacion_fisica=random.choice(["Sin restricción", "Evitar esfuerzo intenso"]),
-            )
-
-        # 13. PERSONA_RETIRO (20)
-        for _ in range(20):
-            nombre, apellido = nombre_random()
-            PersonaRetiro.objects.create(
-                alumno=random.choice(alumnos), nombre=nombre, apellido=apellido,
-                dni=str(random.randint(10000000, 45000000)),
-                telefono=f"261-{random.randint(4000000,4999999)}",
-                vinculo=random.choice(VINCULOS),
-                autorizado=random.random() < 0.85,
-            )
-
-        # 14. ADAPTACION_ALUMNO (20)
-        for _ in range(20):
-            AdaptacionAlumno.objects.create(
-                alumno=random.choice(alumnos),
-                adaptaciones_necesarias="Apoyo visual y consignas simplificadas.",
-                estrategias_funcionales="Ubicación cercana al pizarrón, pausas breves.",
-                observaciones="Revisar avances cada trimestre.",
-            )
-
-        # 15. SITUACION_ASISTENCIA (20)
-        for _ in range(20):
-            inicio = fecha_random(date(2026, 3, 1), date(2026, 7, 1))
-            SituacionAsistencia.objects.create(
-                alumno=random.choice(alumnos),
-                tipo=random.choice(TIPOS_SITUACION),
-                descripcion="Situación registrada por el directivo.",
-                fecha_inicio=inicio, fecha_fin=inicio + timedelta(days=random.randint(1, 10)),
-                observaciones="Sin observaciones adicionales.",
-            )
-
-        self.stdout.write(self.style.SUCCESS(
-            f"Listo: {Usuario.objects.count()} usuarios, {Alumno.objects.count()} alumnos, "
-            f"{Informe.objects.count()} informes y el resto de las tablas cargadas."
-        ))
+        self.stdout.write(self.style.SUCCESS("Datos de prueba cargados con éxito."))
+        self.stdout.write("")
+        self.stdout.write("Usuarios de ejemplo (usuario / contraseña):")
+        for u in [u_roberto, u_juan, u_carlos, u_maria]:
+            self.stdout.write(f"  {u.rol:<11} {u.nombre_usuario} / pass123")
